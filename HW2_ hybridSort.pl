@@ -1,3 +1,6 @@
+% Declare the dynamic predicate to store lists
+:- dynamic saved_list/2.
+
 randomList(0, []).  % Base case: List with 0 should be considered empty
 randomList(N, [X|T]) :-
     N > 0,  % List can only contain positive #'s
@@ -9,6 +12,21 @@ randomList(N, [X|T]) :-
     N1 is N - 1,  % Decrement N
     randomList(N1, T).  % Recursively generate rest of the list
 
+% Create 50 random lists and store them in the knowledge base
+create_and_save_lists :-
+    between(1, 50, N),  % Generate 50 numbers (acts as list ID)
+    random_between(5, 10, Length),  % Choose random list length between 5 and 10
+    randomList(Length, List),  % Generate a random list of that length
+    assertz(saved_list(N, List)),  % Save the list to the knowledge base with ID N
+    fail.  % Fail to force backtracking and continue creating lists
+create_and_save_lists.  % Stop when all lists are created
+
+% To print all saved lists from the knowledge base
+print_saved_lists :-
+    saved_list(ID, List),
+    format("List ~w: ~w~n", [ID, List]),
+    fail.  % Fail to force backtracking and print all lists
+print_saved_lists.  % Stop when done
 
 /*swap the first two elements if they are not in order*/
 swap([X, Y|T], [Y, X | T]):-
